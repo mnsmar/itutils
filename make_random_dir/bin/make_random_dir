@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+EXPECTED_ARGS=2
+E_BADARGS=65 
+
+if [ $# -lt $EXPECTED_ARGS ]
+then
+  echo "Usage: make_random_dir [TARGET_DIR] [PREFIX]"
+  echo "Wrapper around mktemp. It's better to use mktemp directly."
+  exit $E_BADARGS
+fi
+
+TARGET=$1
+PREFIX=$2
+mkdir -p $TARGET
+mktemp -d --tmpdir=$TARGET $PREFIX"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"

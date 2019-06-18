@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+EXPECTED_ARGS=1
+E_BADARGS=65 
+
+if [ $# -lt $EXPECTED_ARGS ]
+then
+  echo "Usage: monitor-git-code-review [DIR]"
+  echo "Check git repositories for changes between review and master branch."
+  echo "Exit status 1 indicates uncommited changes for some repositories or an error."
+  exit $E_BADARGS
+fi
+
+WORKING_DIR=`pwd`
+REPOS=$@
+
+STATUS=0
+for dir in $REPOS ; do
+	if [ ! -d $dir ]; then
+		echo "cannot descend into $dir: No such directory ...skipping"
+		continue
+	fi
+
+	if [ -d $dir/refs ] || [ -d $dir/.git ] ; then
+		cd $dir
+
+		if ! git show-ref --verify --quiet refs/heads/master; then
+			echo "XX - $dir [master branch does not exist]"; 
+			STATUS=1
+		elif ! git show-ref --verify --quiet refs/heads/review; then
+			echo "XX - $dir [review branch does not exist]"; 
+			STATUS=1
+		elif [ -n "$(git log review..master)" ]; then 
+			echo "++ - $dir"; 
+			STATUS=1
+		else 
+			echo "OK - $dir";
+		fi
+		cd $WORKING_DIR
+	else
+		echo "XX - $dir [not a git repository]"
+		STATUS=1
+	fi
+done
+exit $STATUS

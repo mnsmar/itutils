@@ -1,0 +1,2 @@
+A bash script that loops on git repositories and reports if there are changes
+between the review branch and the master branch.

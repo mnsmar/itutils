@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+EXPECTED_ARGS=2
+E_BADARGS=65 
+
+if [ $# -lt $EXPECTED_ARGS ]
+then
+  echo "Usage: send-to-codereview [DIR] [DESTINATION]"
+  echo "Send a git repository [DIR] to code review."
+  echo "The destination directory will be a bare clone of the repository."
+  exit $E_BADARGS
+fi
+
+WORKING_DIR=`pwd`
+dir=$1
+destination=$2
+
+if [ -d $destination ]; then
+	echo "FAIL - $destination already exists"
+	exit 1
+fi
+
+git clone --bare --no-hardlinks $dir $destination
+chgrp -R bioinformatics $destination
+cd $destination
+git config core.sharedRepository group
+find . -type f | xargs chmod g+w
+find . -type d | xargs chmod g+ws
+
+cd $WORKING_DIR

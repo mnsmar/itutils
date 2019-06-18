@@ -1,0 +1,3 @@
+A bash script that will send a project to code review. It basically creates a
+bare repository on a target directory on which the reviewer will push the
+review branch.

@@ -1,0 +1,2 @@
+A bash script that runs monitor-git-code-review on the provided directories
+and ntotifies the user by email if any changes are found.

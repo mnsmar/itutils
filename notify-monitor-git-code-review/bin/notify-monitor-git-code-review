@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+EXPECTED_ARGS=2
+E_BADARGS=65 
+
+if [ $# -lt $EXPECTED_ARGS ]
+then
+  echo "Usage: notify-monitor-git-code-review [EMAIL] [DIR]"
+  echo "Send email if monitor-git-code-review [DIR] returns a non 0 exit status."
+  exit $E_BADARGS
+fi
+
+WORKING_DIR=`pwd`
+EMAIL=$1; shift
+REPOS=$@
+
+if [[ ! $EMAIL =~ .+@.+ ]] ; then
+	echo "Non valid email $EMAIL"
+	exit 1
+fi
+
+MYTMPDIR=`mktemp -d --tmpdir monitor-git.XXXXXX`
+trap "rm -rf $MYTMPDIR" EXIT
+
+TMP_FILE="/$MYTMPDIR/$(basename $0).$RANDOM.txt"
+/home/mns/bin/monitor-git-code-review $REPOS > $TMP_FILE
+if (($? > 0));then
+	mail -s "monitor-git-code-review" $EMAIL < $TMP_FILE
+fi
